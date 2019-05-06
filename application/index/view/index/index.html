@@ -17,6 +17,10 @@
     <!-- Plugin CSS -->
     <link href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://cdn.staticfile.org/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="__CDN__/assets/layui/css/layui.css">
+    <link rel="stylesheet" href="__CDN__/assets/layui/css/layui.mobile.css">
+    <script src="__CDN__/assets/layui/layui.all.js"></script>
+
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -25,9 +29,19 @@
     <![endif]-->
 </head>
 
-<body id="page-top">
+<body id="page-top" style="padding: 0">
 <div class="main">
     <div class="bg"></div>
+    <div class="bg5">
+        <div class="ios">
+            <a href="itms-services://?action=download-manifest&url=https://app.nyjyx.com/data/attachment/"></a>
+        </div>
+        <div class="android">
+            <a href="http://app.nyjyx.com/data/attachment/17-1540285598.apk"></a>
+        </div>
+    </div>
+    <!--<div class="bg1"></div>-->
+    <div class="bg2"></div>
 </div>
 <div class="overplay">
 </div>
@@ -41,6 +55,7 @@
                 </div>
                 <div id="regist" class="login-main">
                     <form name="form1" id="register-form" onsubmit="return false" class="form-vertical" method="POST" action="regist">
+                        <input type="hidden" name="usercontent" value="{$usercontent}">
                         <div class="form-group">
                             <label class="control-label">手机号</label>
                             <div class="controls">
@@ -75,7 +90,7 @@
                                            placeholder="请输入验证码" data-rule="required;length(4)"
                                            style="border-radius: 0;"/>
                                     <span class="input-group-addon" style="padding:0;border:none;">
-                                <img src="{:captcha_src()}" width="140" height="42"
+                                <img src="{:captcha_src()}" width="100" height="42"
                                      onclick="this.src = '{:captcha_src()}?r=' + Math.random();"/>
                             </span>
                                 </div>
@@ -93,7 +108,7 @@
                         <div class="form-group">
                             <label class="control-label" for="account">账号</label>
                             <div class="controls">
-                                <input class="form-control input-lg" id="account" type="text" name="account" value="" data-rule="required" placeholder="请输入账号或手机号码" autocomplete="off">
+                                <input class="form-control input-lg" id="account" type="text" name="account" value="" maxlength="11" data-rule="required" placeholder="请输入账号或手机号码" autocomplete="off">
                                 <div class="help-block"></div>
                             </div>
                         </div>
@@ -126,6 +141,19 @@
 <!-- Plugin JavaScript -->
 <script src="https://cdn.staticfile.org/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 <script type="text/javascript">
+    var  layer = layui.layer;
+    $(function () {
+        $.ajax({
+            dataType:'json',
+            url:'is_login',
+            success:function (res) {
+                if(res.code===1){
+                    $('.from-main').hide();
+                    $('.overplay').hide();
+                }
+            }
+        })
+    });
     function swatch(val) {
         if(val===1){
             $('#login').show();
@@ -145,13 +173,14 @@
         $.ajax({
             type:'POST',
             dataType:'json',
-            url:'regist',
+            url:'register',
             data:data,
             success:function (res) {
                 if(res.code===1){
-
+                    $('.from-main').hide();
+                    $('.overplay').hide();
                 }else{
-                    layui.msg('22333');
+                    layer.msg(res.msg);
                 }
             }
         })
@@ -166,14 +195,15 @@
             data:data,
             success:function (res) {
                 if(res.code===1){
-
+                    $('.from-main').hide();
+                    $('.overplay').hide();
                 }else{
-                    layui.msg('22333');
+                    layer.msg(res.msg);
                 }
             }
         })
     }
-
+    
 </script>
 </body>
 

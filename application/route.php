@@ -12,7 +12,8 @@
 use think\Route;
 
 Route::post('login','index/index/login');
-Route::post('regist','index/index/regist');
+Route::post('register','index/index/register');
+Route::get('is_login','index/index/is_login');
 
 return [
     //别名配置,别名只能是映射到控制器且访问时必须加上请求的方法

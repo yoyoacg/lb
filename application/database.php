@@ -53,4 +53,20 @@ return [
     'datetime_format' => false,
     // 是否需要进行SQL性能分析
     'sql_explain'     => false,
+    'sql_server'=>[
+        'accounts'=>[
+            // 数据库类型
+            'type'            => 'sqlsrv',
+            // 服务器地址
+            'hostname'        => '127.0.0.1',
+            // 数据库名
+            'database'        => 'QPAccountsInfoDB',
+            // 用户名
+            'username'        => 'sa',
+            // 密码
+            'password'        =>'123456',
+            // 端口
+            'hostport'        =>1433,
+        ],
+    ],
 ];
