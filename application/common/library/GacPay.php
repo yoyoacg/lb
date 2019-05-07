@@ -16,13 +16,13 @@ class GacPay
      * 正式url
      * @var string
      */
-//    protected $url = 'https://api.qapple.io/v2/api';
+    protected $url = 'https://api.qapple.io/v2/api';
 
     /**
      * 测试url地址
      * @var string
      */
-    protected $url = 'http://paysrv.qapple.io/v2/api';
+//    protected $url = 'http://paysrv.qapple.io/v2/api';
 
     /**
      * 私钥
@@ -48,15 +48,24 @@ class GacPay
      * 回调地址
      * @var string
      */
-    protected $notifyUrl='http://game.yoyoacg.com/return';
+    protected $notifyUrl='http://game.yoyoacg.com/index/index/notify';
 
-    public function pay($price='',$order='',$goods='游戏充值',$body=''){
-        $price = number_format($price,2);
+    /**
+     * 支付
+     * @param string $price
+     * @param string $order
+     * @param string $goods
+     * @param string $body
+     * @param string $nickname
+     * @return bool
+     */
+    public function pay($price='',$order='',$goods='游戏充值',$body='',$nickname=''){
+//        $price = number_format($price,2);
         $param_arr = array(
             'outTradeNo' => $order,  // 每个outTradeNo只能用一次，否则会因为订单重复而失败
             'orderAmountRmb' =>$price,  //下单金额，保留两位小数
             'merchantName' => $this->merchantName,  //商家账户名
-            'vipName' => 'vip22',  //商家平台下会员名
+            'vipName' => $nickname,  //商家平台下会员名
             'subject' => $goods,  //商品的标题/交易标题/订单标题/订单关键字等
             'body' => $body, //对一笔交易的具体描述信息。如果是多种商品，请将商品描述字符串累加传给body
             //具体的回调地址
@@ -70,27 +79,23 @@ class GacPay
         $pre_pay_url = $this->url . "/merchant/merchantcenter/pay/prePay";
         $response_str = $this->http_request($pre_pay_url, $param_arr);
         $response = json_decode($response_str, true);
-        var_dump($response);die();
         if ( $response['code'] != 200 ){
-            echo 'request failed, server returns: '.$response_str;
+            return false;
+//            echo 'request failed, server returns: '.$response_str;
         } else {
             $request_data = $response['data'];
             $request_signed = $request_data['sign'];
             unset($request_data['sign']);
-            ksort($request_data);
-            $request_unsigned = make_json_join_str($request_data);
-
-            $check_sign = do_check($request_unsigned, $request_signed, QAPPLE_PUBLIC_KEY);  // 这里使用response的数据
-            if ($check_sign){
-                header("Location:".$request_data['returnUrl']);
-
-//            echo '验签成功！';
-            } else {
-                echo '验签失败！';
-            }
-
-            //echo '返回跳转地址:' . $request_data['returnUrl'];
-
+           return $request_data['returnUrl'];
+//            ksort($request_data);
+//            $request_unsigned = make_json_join_str($request_data);
+//
+//            $check_sign = do_check($request_unsigned, $request_signed, QAPPLE_PUBLIC_KEY);  // 这里使用response的数据
+//            if ($check_sign){
+//                header("Location:".$request_data['returnUrl']);
+//            } else {
+//                echo '验签失败！';
+//            }
         }
 
 

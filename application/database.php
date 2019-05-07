@@ -68,5 +68,19 @@ return [
             // 端口
             'hostport'        =>1433,
         ],
+        'payservice'=>[
+            // 数据库类型
+            'type'            => 'sqlsrv',
+            // 服务器地址
+            'hostname'        => '127.0.0.1',
+            // 数据库名
+            'database'        => 'QPPayServiceDB',
+            // 用户名
+            'username'        => 'sa',
+            // 密码
+            'password'        =>'123456',
+            // 端口
+            'hostport'        =>1433,
+        ],
     ],
 ];
