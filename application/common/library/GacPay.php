@@ -48,7 +48,7 @@ class GacPay
      * 回调地址
      * @var string
      */
-    protected $notifyUrl='http://game.yoyoacg.com/index/index/notify';
+    protected $notifyUrl='http://game.yoyoacg.com/index/pay/notify';
 
     /**
      * 支付

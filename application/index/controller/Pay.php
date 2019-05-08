@@ -28,16 +28,19 @@ class Pay extends Controller
         $this->paySql = Db::connect( config('database.sql_server')['payservice']);
     }
 
+    /**
+     * 充值
+     */
     public function index(){
         $param = $this->request->param();
         $payAccounts = $param['payAccounts']??null;
         $price = $param['hdfSalePrice']??null;
         $terminal =$param['terminal']??'';
-        if(empty($payAccounts)||empty($price)) $this->error('支付失败！！！');
+        if(empty($payAccounts)||empty($price)) $this->error('支付失败！！！',null);
         $user = $this->accounts->table('dbo.AccountsInfo')
             ->where('UserID',$payAccounts)
             ->value('NickName');
-        if(empty($user)) $this->error('用户不存在');
+        if(empty($user)) $this->error('用户不存在',null);
         $order = rand(100,999).date('YmdHis').rand(100,999);
         $price=number_format($price,2);
 //        $price=10;
@@ -65,9 +68,43 @@ class Pay extends Controller
             if($url){
                 $this->redirect($url);
             }else{
-                $this->error();
+                $this->error('充值失败，请稍后再试',null);
             }
         }
+    }
+
+    /****
+     * 充值回调
+     * @return string
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     */
+    public function notify(){
+        $param = $this->request->param();
+        if(count($param)>1&&$param['status']==='SUCCESS'){
+            $data=$this->paySql->table('dbo.OnLineOrder')
+                ->where('OrderID',$param['outTradeNo'])
+                ->where('OrderAmount',$param['orderAmountRmb'])
+                ->field('OnLineID,UserID,OrderAmount,OrderStatus')
+                ->select();
+            if($data){
+                if($data['OrderStatus']===0){
+                    $this->accounts->table('dbo.AccountsInfo')
+                        ->where('UserID',$data['UserID'])
+                        ->setInc('DiamondScore',$data['OrderAmount']);
+                    $this->paySql->table('dbo.OnLineOrder')
+                        ->where('OnLineID',$data['OnLineID'])
+                        ->update(['OrderStatus'=>2]);
+                }
+               echo  json_encode(['code'=>200,'message'=>'操作成功']);
+                exit();
+            }
+        }
+        echo json_encode(['code'=>500,'message'=>'fail']);
+        exit();
     }
 
 
