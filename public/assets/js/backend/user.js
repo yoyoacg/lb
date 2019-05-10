@@ -66,9 +66,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 Table.api.multi("jd", ids, table, this);
             });
             $(document).on('click','.btn-diamond',function () {
-                var ids = Table.api.selectedids(table).join(",");
+                var ids = Table.api.selectedids(table);
                 var action = $(this).data('action');
-                Fast.api.open('user/zs?action='+action+'&ids='+ids,'赠送');
+                if(eval(ids).length>1){
+                    Fast.api.msg('<code>只能操作单一用户</code>');
+                }else{
+                    Fast.api.open('user/zs?action='+action+'&ids='+ids,'赠送');
+                }
             });
 
         },
