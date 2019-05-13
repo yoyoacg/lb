@@ -1,5 +1,32 @@
 define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
-
+    /**
+     * 金额大写转换
+     * @param money
+     * @returns {string}
+     */
+    function prceNum(money) {
+        var fraction = ['角','分'];
+        var digit = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
+        var unit = [['元','万','亿'],['','拾','佰','仟']];
+        var head = money < 0?'欠':'';
+        money = Math.abs(money);
+        var s = '';
+        for (var i = 0; i < fraction.length; i++) {
+            s += (digit[Math.floor(money * 10 * Math.pow(10, i)) % 10] + fraction[i]).replace(/零./, '');
+        }
+        s = s || '整';
+        money = Math.floor(money);
+        for (var i = 0; i < unit[0].length && money > 0; i++) {
+            var p = '';
+            for (var j = 0; j < unit[1].length && money > 0; j++) {
+                p = digit[money % 10] + unit[1][j] + p;
+                money = Math.floor(money / 10);
+            }
+            s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s;
+        }
+        var sum= head + s.replace(/(零.)*零元/,'元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整');
+        return sum;
+    }
     var Controller = {
         index: function () {
             // 初始化表格参数配置
@@ -65,7 +92,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 var ids = Table.api.selectedids(table).join(",");
                 Table.api.multi("jd", ids, table, this);
             });
-            $(document).on('click','.btn-diamond',function () {
+            $(document).on('click','.btn-diamond,.btn-score,.btn-fk',function () {
                 var ids = Table.api.selectedids(table);
                 var action = $(this).data('action');
                 if(eval(ids).length>1){
@@ -73,6 +100,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 }else{
                     Fast.api.open('user/zs?action='+action+'&ids='+ids,'赠送');
                 }
+            });
+            $(document).on('click','.btn-repassword',function () {
+                var ids = Table.api.selectedids(table).join(',');
+                Fast.api.open('user/repass?ids='+ids,'修改密码');
             });
 
         },
@@ -83,6 +114,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.bindevent();
         },
         zs:function(){
+            $('#c-num').on('change',function () {
+                var money = $(this).val();
+                var num = prceNum(money);
+                var p='<p class="help-block" style="font-size: 20px"><code>'+num+'</code></p>';
+                $(this).nextAll().remove();
+                $(this).after(p);
+            })
+            Controller.api.bindevent();
+        },
+        repass:function(){
             Controller.api.bindevent();
         },
         api: {
