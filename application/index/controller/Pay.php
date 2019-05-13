@@ -89,11 +89,10 @@ class Pay extends Controller
             $data=$this->paySql->table('dbo.OnLineOrder')
                 ->where('OrderID',$param['outTradeNo'])
                 ->where('OrderAmount',$param['orderAmountRmb'])
-//                ->field('OnLineID,UserID,OrderAmount,OrderStatus')
-                ->select();
-            $user = $this->accounts->table('dbo.AccountsInfo')->where('UserID',$data['UserID'])->select();
+                ->find();
+            $user = $this->accounts->table('dbo.AccountsInfo')->where('UserID',$data['UserID'])->find();
             if($data){
-                if($data['OrderStatus']===0){
+                if($data['OrderStatus']==0&&$user){
 				    $shareDetail = [
 				        'OperUserID'=>$data['UserID'],
 				        'ShareID'=>'1',
@@ -106,14 +105,14 @@ class Pay extends Controller
 				        'CardPrice'=>$data['OrderAmount'],
 				        'CardGold'=>0,
 				        'BeforeGold'=>$user['Score'],
-				        'CardTotal'=>$data['OrderAmount'],
+				        'CardTotal'=>intval($data['OrderAmount']),
 				        'OrderAmount'=>$data['OrderAmount'],
 				        'DiscountScale'=>0,
 				        'PayAmount'=>$data['PayAmount'],
 				        'IPAddress'=>$data['IPAddress'],
 				        'ApplyDate'=>date('Y-m-d H:i:s'),
 				        'ServerID'=>1,
-				        'TrancationNO'=>$data['OrderID'],
+				        'TrancationNO'=>$param['tradeNo'],
 				        'AgentID'=>1,
 				        'PayPlatform'=>'青苹果',
                     ];
