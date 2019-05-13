@@ -42,7 +42,7 @@ class Pay extends Controller
             ->value('NickName');
         if(empty($user)) $this->error('用户不存在',null);
         $order = rand(100,999).date('YmdHis').rand(100,999);
-        $price=number_format($price,2);
+        $price=number_format($price,2,'.','');
 //        $price=10;
         $data=[
             'ShareID'=>$terminal,
@@ -88,16 +88,41 @@ class Pay extends Controller
             $data=$this->paySql->table('dbo.OnLineOrder')
                 ->where('OrderID',$param['outTradeNo'])
                 ->where('OrderAmount',$param['orderAmountRmb'])
-                ->field('OnLineID,UserID,OrderAmount,OrderStatus')
+//                ->field('OnLineID,UserID,OrderAmount,OrderStatus')
                 ->select();
+            $user = $this->accounts->table('dbo.AccountsInfo')->where('UserID',$data['UserID'])->select();
             if($data){
                 if($data['OrderStatus']===0){
+				    $shareDetail = [
+				        'OperUserID'=>$data['UserID'],
+				        'ShareID'=>'1',
+				        'UserID'=>$data['UserID'],
+				        'GameID'=>$data['UserID'],
+				        'Accounts'=>$user['Accounts'],
+				        'SerialID'=>1,
+				        'OrderID'=>$data['OrderID'],
+				        'CardTypeID'=>1,
+				        'CardPrice'=>$data['OrderAmount'],
+				        'CardGold'=>0,
+				        'BeforeGold'=>$user['Score'],
+				        'CardTotal'=>$data['OrderAmount'],
+				        'OrderAmount'=>$data['OrderAmount'],
+				        'DiscountScale'=>0,
+				        'PayAmount'=>$data['PayAmount'],
+				        'IPAddress'=>$data['IPAddress'],
+				        'ApplyDate'=>date('Y-m-d H:i:s'),
+				        'ServerID'=>1,
+				        'TrancationNO'=>$data['OrderID'],
+				        'AgentID'=>1,
+				        'PayPlatform'=>'青苹果',
+                    ];
                     $this->accounts->table('dbo.AccountsInfo')
                         ->where('UserID',$data['UserID'])
                         ->setInc('DiamondScore',$data['OrderAmount']);
                     $this->paySql->table('dbo.OnLineOrder')
                         ->where('OnLineID',$data['OnLineID'])
                         ->update(['OrderStatus'=>2]);
+                    $this->paySql->table('dbo.ShareDetailInfo')->insert($shareDetail);
                 }
                echo  json_encode(['code'=>200,'message'=>'操作成功']);
                 exit();
