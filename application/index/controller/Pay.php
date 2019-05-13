@@ -84,7 +84,8 @@ class Pay extends Controller
      */
     public function notify(){
         $param = $this->request->param();
-//        if(count($param)>1&&$param['status']==='SUCCESS'){
+        file_put_contents(ROOT_PATH.'test.txt',json_encode($param));
+        if(count($param)>1&&$param['status']==='SUCCESS'){
             $data=$this->paySql->table('dbo.OnLineOrder')
                 ->where('OrderID',$param['outTradeNo'])
                 ->where('OrderAmount',$param['orderAmountRmb'])
@@ -127,7 +128,7 @@ class Pay extends Controller
                echo  json_encode(['code'=>200,'message'=>'操作成功']);
                 exit();
             }
-//        }
+        }
         echo json_encode(['code'=>500,'message'=>'fail']);
         exit();
     }
