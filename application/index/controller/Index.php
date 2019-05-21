@@ -25,7 +25,9 @@ class Index extends Frontend
     public function index()
     {
         $usercount = $this->request->param('UserContent','');
+        $content = $this->request->param('Content','');
         $this->assign('usercontent',$usercount);
+        $this->assign('content',$content);
         return $this->view->fetch();
     }
 
@@ -87,6 +89,7 @@ class Index extends Frontend
     public function register(){
         $params = $this->request->post();
         $usercontent = $params['usercontent'];
+        $content = $params['content'];
         $rule = [
             'mobile'    => 'regex:/^1\d{10}$/',
             'password'  => 'require|length:6,16',
@@ -134,6 +137,7 @@ class Index extends Frontend
             'LastLogonIP'=>$Ip,
             'LastLogonTime'=>$time,
             'NoteDate'=>$time,
+            'SpreaderID'=>empty($content)?0:intval($content),
             'WX_openid'=>md5($params['mobile']),
             'WX_nickname'=>$params['nickname'],
             'WX_headimgurl'=>'~~'.rand(1,9).'.png',
